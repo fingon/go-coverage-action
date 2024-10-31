@@ -15,6 +15,10 @@ inputs:
     description: 'File or pathname for the resulting html coverage report'
     required: false
     default: 'go-coverage.html'
+  cover-filename:
+    description: 'File or pathname for the existing go test coverage result; if this is set, cover-mode, cover-pkg, test-args, and test-pkgs are not used'
+    required: false
+    default: ''
   cover-mode:
     description: 'Parameter to pass to go tests -covermode argument.  Either count, set or atomic'
     default: 'count'

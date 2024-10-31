@@ -143,7 +143,7 @@ async function generateCoverage() {
     gocovAggPathname: '',
   };
 
-  report.gocovPathname = path.join(tmpdir, 'go.cov');
+  report.gocovPathname = core.getInput('cover-filename') || path.join(tmpdir, 'go.cov');
   report.gocovAggPathname = path.join(tmpdir, 'go-aggregate.cov');
 
   const filename = core.getInput('report-filename');
@@ -165,18 +165,19 @@ async function generateCoverage() {
     throw `invalid value for test-args; must be a JSON array of strings, got ${testArgs} (${e})`;
   }
 
-  const args = ['test']
-    .concat(testArgs)
-    .concat([
-      '-covermode',
-      coverMode,
-      '-coverprofile',
-      report.gocovPathname,
-      ...(coverPkg ? ['-coverpkg', coverPkg] : []),
-      ...testPkgs.split('\n'),
-    ]);
-  await exec('go', args);
-
+  if (!fs.existsSync(report.gocovPathname)) {
+    const args = ['test']
+      .concat(testArgs)
+      .concat([
+        '-covermode',
+        coverMode,
+        '-coverprofile',
+        report.gocovPathname,
+        ...(coverPkg ? ['-coverpkg', coverPkg] : []),
+        ...testPkgs.split('\n'),
+      ]);
+    await exec('go', args);
+  }
   const pkgStats = {};
   const [globalPct, skippedFileCount, pkgStmts] = await calcCoverage(
     report.gocovPathname,
